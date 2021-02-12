@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mgmtk8sctrlr
+  namespace: infiotmgmtproxy
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: mgmtk8sctrlr
+  namespace: infiotmgmtproxy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  # name: infiotmgmtproxy-admin
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: mgmtk8sctrlr
+    namespace: infiotmgmtproxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mgmtk8sctrlr
+  namespace: infiotmgmtproxy
+spec:
+  selector:
+    matchLabels:
+      app: mgmtk8sctrlr
+      deployment: infiotmgmtproxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mgmtk8sctrlr
+        deployment: infiotmgmtproxy
+    spec:
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: mgmtk8sctrlr
+      volumes:
+        - name: mgmtk8sctrlr-config-volume
+          configMap:
+            name: mgmtk8sctrlr-config
+      containers:
+      - name: mgmtk8sctrlr
+        image: gcr.io/infiot-public-images/mgmtk8sctrlr:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: mgmtk8sctrlr-config-volume
+          mountPath: "/etc/mgmtk8sctrlr-config"
+        ports:
+          - containerPort: 8080
+        env:
+          - name: INF_MGMTK8SCTRLR_TENANT_URL
+            valueFrom:
+              secretKeyRef:
+                name: store-mgmtk8sctrlr
+                key: url
+          - name: INF_MGMTK8SCTRLR_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: store-mgmtk8sctrlr
+                key: token
+          - name: INF_MGMTGW_IMAGE
+            value: gcr.io/infiot-public-images/infiot_image_x86:R1.3.20
+          - name: INF_MGMTGW_MINVERSION
+            value: R1.3.20
+          - name: INF_MGMTGW_AUTO_UPGRADE_MINOR
+            value: "False"
+          - name: INF_MGMTGW_AUTO_UPGRADE_MAJOR
+            value: "False"
+          - name: INF_MGMTGW_NAME_PREFIX
+            value: mgmtproxy
+          - name: INF_MGMTGW_LBIP
+            value: ""
+          - name: INF_MGMTGW_NODE_SELECTOR_LABEL
+            value: infiot.com/mgmtproxy
+          - name: INF_MGMTGW_NODE_SELECTOR_VALUE
+            value: mgmtgw-nodes
+          - name: INF_LAN_DEVICE_SVC_CONFIGMAP
+            value: "/etc/mgmtk8sctrlr-config/lan-svc-map.json"
+          - name: INF_K8S_PODIP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: INF_MGMTGW_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: INF_K8S_PODNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name

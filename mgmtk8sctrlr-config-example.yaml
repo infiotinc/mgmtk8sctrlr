@@ -1,0 +1,28 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: mgmtk8sctrlr-config
+data:
+  lan-svc-map.json: |
+    [
+      {
+        "lan_device_selector": "DHCP_MANAGED",
+        "lan_device_services": [
+            {
+                "md_service_name": "SSH",
+                "md_service_proto": "ssh",
+                "md_service_port": 22 
+            },
+            {
+                "md_service_name": "RDP",
+                "md_service_proto": "rdp",
+                "md_service_port": 3389 
+            },
+            {
+                "md_service_name": "HTTP",
+                "md_service_proto": "http",
+                "md_service_port": 80
+            }
+        ]
+      }
+    ]
