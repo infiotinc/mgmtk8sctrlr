@@ -41,11 +41,10 @@ Labels:             infiot.com/mgmtproxy=mgmtgw-nodes
 
 2. Create or update the secret using following command sequence
 ```
+kubectl -n infiotmgmtproxy delete secret store-mgmtk8sctrlr
 kubectl -n infiotmgmtproxy \
     create secret generic store-mgmtk8sctrlr \
-    --from-literal=token=<SECRET_FROM_STEP_1>
-kubectl -n infiotmgmtproxy \
-    create secret generic store-mgmtk8sctrlr \
+    --from-literal=token=<SECRET_FROM_STEP_1> \
     --from-literal=url=https://acme.infiot.net
 ```
 
