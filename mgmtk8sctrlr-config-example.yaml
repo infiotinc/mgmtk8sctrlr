@@ -24,5 +24,25 @@ data:
                 "md_service_port": 80
             }
         ]
+      },
+      {
+        "lan_device_selector": "AUTO",
+        "lan_device_services": [
+            {
+                "md_service_name": "SSH",
+                "md_service_proto": "ssh",
+                "md_service_port": 22 
+            },
+            {
+                "md_service_name": "RDP",
+                "md_service_proto": "rdp",
+                "md_service_port": 3389 
+            },
+            {
+                "md_service_name": "HTTP",
+                "md_service_proto": "http",
+                "md_service_port": 80
+            }
+        ]
       }
     ]
